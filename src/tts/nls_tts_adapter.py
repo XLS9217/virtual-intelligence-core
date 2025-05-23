@@ -42,6 +42,7 @@ class NlsTTS_Adapter(TTSInterface):
                 with open("output_audio.wav", "wb") as audio_file:
                     audio_file.write(response.content)
                 print("语音合成成功！音频文件已保存为 output_audio.wav")
+                return response.content
             else:  # 返回 JSON 格式的错误信息
                 result = response.json()
                 print(f"语音合成失败！错误信息：{result.get('message')}")

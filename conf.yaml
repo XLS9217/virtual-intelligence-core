@@ -1,3 +1,19 @@
 system_config:
-  host: 'localhost'
+  host: "0.0.0.0"
   port: 8192
+
+asr_config:
+  type: "nls"
+  app_key: "<your_app_key>"
+  token: "<your_token>"
+  api_url: "https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/asr"
+
+llm_config:
+  type: "deepseek"
+  api_key: "<your_api_key>"
+
+tts_config:
+  type: "nls"
+  app_key: "<your_app_key>"
+  token: "<your_token>"
+  api_url: "https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/tts"
