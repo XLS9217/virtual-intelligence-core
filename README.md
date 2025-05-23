@@ -1,3 +1,9 @@
-python main.py to run the project
+1. uv sync to install dependencies
+
+2. .\venv\Scripts\activate
+
+3. python main.py
+
+
 
 agent will forge the prompt
