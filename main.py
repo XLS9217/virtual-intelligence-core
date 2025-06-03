@@ -1,5 +1,7 @@
+import ffmpeg
 import yaml
 from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 import io
@@ -12,7 +14,7 @@ def load_config(path):
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
-config = load_config("./conf.yaml")
+config = load_config("./personal_conf.yaml")
 print(config)
 
 
@@ -75,21 +77,32 @@ async def llm_process(data: dict):
     })
 
 
+
+
+# def convert_audio_to_valid_wav(wav_bytes: bytes, sample_rate: int = 44100) -> io.BytesIO:
+#     output, _ = (
+#         ffmpeg
+#         .input('pipe:0')
+#         .output('pipe:', format='wav', ac=1, ar=sample_rate, sample_fmt='s16')
+#         .run(input=wav_bytes, capture_stdout=True, capture_stderr=True)
+#     )
+#     return io.BytesIO(output)
+
+
 @app.post("/tts_speak")
 async def tts_speak(data: dict):
     text = data.get("text")
     if not text:
         return JSONResponse(status_code=400, content={"error": "Missing text"})
     
-    wav_bytes = tts.get_tts_wav(text)
-    audio_stream = io.BytesIO(wav_bytes)
+    file_path = tts.get_tts_wav(text) 
     
-    return StreamingResponse(
-        audio_stream,
+    return FileResponse(
+        path=file_path,
         media_type="audio/wav",
+        filename="speech.wav",
         headers={"Content-Disposition": 'inline; filename="speech.wav"'}
     )
-
 
 
 @app.post("/speech_response")
@@ -107,17 +120,13 @@ async def speech_response(file: UploadFile = File(...)):
         return JSONResponse(status_code=500, content={"error": "LLM processing failed"})
 
     # Step 3: TTS - convert LLM response to speech wav bytes
-    wav_bytes = tts.get_tts_wav(llm_response)
-    if not wav_bytes:
-        return JSONResponse(status_code=500, content={"error": "TTS synthesis failed"})
-
-    audio_stream = io.BytesIO(wav_bytes)
-
-    # Return the synthesized speech audio stream
-    return StreamingResponse(
-        audio_stream,
+    file_path = tts.get_tts_wav(llm_response) 
+    
+    return FileResponse(
+        path=file_path,
         media_type="audio/wav",
-        headers={"Content-Disposition": 'inline; filename="response.wav"'}
+        filename="speech.wav",
+        headers={"Content-Disposition": 'inline; filename="speech.wav"'}
     )
 
 

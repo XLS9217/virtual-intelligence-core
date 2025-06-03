@@ -14,7 +14,7 @@ class DeepseekLLM_Adapter(LLMInterface):
         response = self.client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": "用中文回答我"},
+                {"role": "system", "content": "用中文回答我，控制在20个字左右的回复"},
                 {"role": "user", "content": user_input},
             ],
             stream=False

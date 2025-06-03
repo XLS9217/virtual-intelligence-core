@@ -1,3 +1,4 @@
+import ffmpeg
 from .tts_interface import TTSInterface
 
 import requests
@@ -17,13 +18,13 @@ class NlsTTS_Adapter(TTSInterface):
 
     def get_tts_wav(self, user_input):
 
-        # 构造请求头
+        # Construct request headers
         headers = {
             "X-NLS-Token": self.token,
             "Content-Type": "application/json"
         }
 
-         # 构造请求体
+        # Construct request payload
         payload = {
             "appkey": self.app_key,
             "text": user_input,
@@ -32,19 +33,35 @@ class NlsTTS_Adapter(TTSInterface):
             "voice": "xiaoyun"
         }
 
-        # 发送 POST 请求
+        # Send POST request
         response = requests.post(self.api_url, headers=headers, data=json.dumps(payload))
 
-        # 处理响应结果
+        # Process response
         if response.status_code == 200:
             content_type = response.headers.get("Content-Type", "")
-            if "audio" in content_type:  # 成功返回二进制音频数据
-                with open("output_audio.wav", "wb") as audio_file:
-                    audio_file.write(response.content)
-                print("语音合成成功！音频文件已保存为 output_audio.wav")
-                return response.content
-            else:  # 返回 JSON 格式的错误信息
+            if "audio" in content_type:  # Successfully returned binary audio data
+
+                raw_wav = response.content
+
+                # Save raw wav bytes directly to file
+                raw_path = "output_raw.wav"
+                with open(raw_path, "wb") as f:
+                    f.write(raw_wav)
+
+                # Run ffmpeg on the saved raw file to convert/normalize it
+                converted_path = "output_audio.wav"
+                ffmpeg.input(raw_path).output(
+                    converted_path,
+                    format='wav',
+                    ac=1,
+                    ar=16000,
+                    sample_fmt='s16'
+                ).run(overwrite_output=True)
+
+                print("Speech synthesis succeeded! Audio file saved as output_audio.wav")
+                return converted_path
+            else:  # Returned JSON error message
                 result = response.json()
-                print(f"语音合成失败！错误信息：{result.get('message')}")
+                print(f"Speech synthesis failed! Error message: {result.get('message')}")
         else:
-            print(f"请求失败！HTTP状态码：{response.status_code}, 错误信息：{response.text}")
+            print(f"Request failed! HTTP status code: {response.status_code}, Error message: {response.text}")
