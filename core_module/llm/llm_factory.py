@@ -9,3 +9,7 @@ class LLMFactory:
             return LLMAdapter_Deepseek(
                 api_key = args.get("api_key"),
             )
+        if llm_name == "qwen":
+            return LLMAdapter_Deepseek(
+                api_key = args.get("api_key"),
+            )

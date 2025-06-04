@@ -1,1 +1,1 @@
-in the same dirtory level as this file, use StartServer_Win.bat to start
+uv run -m core_module
