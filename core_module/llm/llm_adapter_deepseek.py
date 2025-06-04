@@ -1,7 +1,7 @@
 from openai import OpenAI
 from .llm_interface import LLMInterface
 
-class DeepseekLLM_Adapter(LLMInterface):
+class LLMAdapter_Deepseek(LLMInterface):
 
     def  __init__(self, api_key):
         self.api_key = api_key

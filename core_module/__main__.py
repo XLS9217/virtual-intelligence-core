@@ -1,14 +1,19 @@
 import ffmpeg
+import time
 import yaml
 from fastapi import FastAPI, UploadFile, File
+from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 import io
 
-from src.asr.asr_factory import ASRFactory
-from src.tts.tts_factory import TTSFactory
-from src.llm.llm_factory import LLMFactory
+from .asr.asr_factory import ASRFactory
+from .tts.tts_factory import TTSFactory
+from .llm.llm_factory import LLMFactory
+
+# import os
+# print("cwd =", os.getcwd())
 
 def load_config(path):
     with open(path, "r") as f:
@@ -36,9 +41,6 @@ tts = TTSFactory.get_tts_system(
     token=config["tts_config"]["token"],
     api_url=config["tts_config"]["api_url"]
 )
-
-
-
 
 app = FastAPI()
 
@@ -76,19 +78,6 @@ async def llm_process(data: dict):
         "llm_result": llm_response,
     })
 
-
-
-
-# def convert_audio_to_valid_wav(wav_bytes: bytes, sample_rate: int = 44100) -> io.BytesIO:
-#     output, _ = (
-#         ffmpeg
-#         .input('pipe:0')
-#         .output('pipe:', format='wav', ac=1, ar=sample_rate, sample_fmt='s16')
-#         .run(input=wav_bytes, capture_stdout=True, capture_stderr=True)
-#     )
-#     return io.BytesIO(output)
-
-
 @app.post("/tts_speak")
 async def tts_speak(data: dict):
     text = data.get("text")
@@ -96,7 +85,6 @@ async def tts_speak(data: dict):
         return JSONResponse(status_code=400, content={"error": "Missing text"})
     
     file_path = tts.get_tts_wav(text) 
-    
     return FileResponse(
         path=file_path,
         media_type="audio/wav",
@@ -129,6 +117,16 @@ async def speech_response(file: UploadFile = File(...)):
         headers={"Content-Disposition": 'inline; filename="speech.wav"'}
     )
 
+
+@app.websocket("/ws_control")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+
+    except WebSocketDisconnect:
+        print("WebSocket disconnected")
 
 
 def main():

@@ -8,7 +8,7 @@ import json
 
 
 
-class NlsTTS_Adapter(TTSInterface):
+class TTSAdapter_NLS(TTSInterface):
 
     def  __init__(self , app_key, token, api_url):
         self.app_key = app_key
@@ -43,20 +43,20 @@ class NlsTTS_Adapter(TTSInterface):
 
                 raw_wav = response.content
 
-                # Save raw wav bytes directly to file
-                raw_path = "output_raw.wav"
-                with open(raw_path, "wb") as f:
-                    f.write(raw_wav)
-
-                # Run ffmpeg on the saved raw file to convert/normalize it
+                # Process raw WAV bytes in memory with FFmpeg
                 converted_path = "output_audio.wav"
-                ffmpeg.input(raw_path).output(
-                    converted_path,
-                    format='wav',
-                    ac=1,
-                    ar=16000,
-                    sample_fmt='s16'
-                ).run(overwrite_output=True)
+                (
+                    ffmpeg
+                    .input('pipe:0')
+                    .output(
+                            converted_path, 
+                            format='wav', 
+                            ac=1, 
+                            ar=16000, 
+                            sample_fmt='s16'
+                        )
+                    .run(input=raw_wav, overwrite_output=True)
+                )
 
                 print("Speech synthesis succeeded! Audio file saved as output_audio.wav")
                 return converted_path

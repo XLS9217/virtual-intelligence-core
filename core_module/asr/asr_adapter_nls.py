@@ -12,16 +12,12 @@ def _convert_audio_to_wav_io(input_stream: io.BytesIO, target_sample_rate=16000)
     )
     return io.BytesIO(out)
 
-class NlsASR_Adapter(ASRInterface):
+class ASRAdapter_NLS(ASRInterface):
 
     def __init__(self, app_key, token, api_url):
         self.app_key = app_key
         self.token = token
         self.api_url = api_url
-
-    def transcribe_path(self, audio_file_path) -> str:
-        with open(audio_file_path, "rb") as f:
-            return self.transcribe_bytes(f.read())
 
     def transcribe_bytes(self, audio_bytes: bytes) -> str:
         audio_io = io.BytesIO(audio_bytes)

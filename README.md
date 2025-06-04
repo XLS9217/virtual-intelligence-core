@@ -1,9 +1,1 @@
-1. uv sync to install dependencies
-
-2. .\venv\Scripts\activate
-
-3. python main.py
-
-
-
-agent will forge the prompt
+in the same dirtory level as this file, use StartServer_Win.bat to start
