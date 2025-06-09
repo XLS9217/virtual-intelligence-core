@@ -1,3 +1,4 @@
+from .llm_adapter_qfan import LLMAdapter_Qfan
 from .llm_interface import LLMInterface
 
 from .llm_adapter_deepseek import LLMAdapter_Deepseek
@@ -8,8 +9,10 @@ class LLMFactory:
         if llm_name == "deepseek":
             return LLMAdapter_Deepseek(
                 api_key = args.get("api_key"),
+                base_url = args.get("base_url"),
             )
-        if llm_name == "qwen":
-            return LLMAdapter_Deepseek(
+        elif llm_name == "qfan":
+            return LLMAdapter_Qfan(
                 api_key = args.get("api_key"),
+                base_url = args.get("base_url"),
             )

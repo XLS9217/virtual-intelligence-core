@@ -1,46 +1,36 @@
-import ffmpeg
-import time
-import yaml
 from fastapi import FastAPI, UploadFile, File
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
-import io
+
+from core_module.util.config_librarian import ConfigLibrarian
 
 from .asr.asr_factory import ASRFactory
 from .tts.tts_factory import TTSFactory
 from .llm.llm_factory import LLMFactory
 
-# import os
-# print("cwd =", os.getcwd())
 
-def load_config(path):
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
+# ConfigLibrarian.load_config()
 
-config = load_config("./personal_conf.yaml")
-print(config)
-
-
+# ASR
 asr = ASRFactory.get_asr_system(
-    config["asr_config"]["type"],
-    app_key=config["asr_config"]["app_key"],
-    token=config["asr_config"]["token"],
-    api_url=config["asr_config"]["api_url"]
+    ConfigLibrarian.get_default_asr(),
+    **ConfigLibrarian.get_asr_provider_info(ConfigLibrarian.get_default_asr())
 )
 
+# LLM
 llm = LLMFactory.get_llm_system(
-    config["llm_config"]["type"],
-    api_key=config["llm_config"]["api_key"]
+    ConfigLibrarian.get_default_llm(),
+    **ConfigLibrarian.get_llm_provider_info(ConfigLibrarian.get_default_llm())
 )
 
+# TTS
 tts = TTSFactory.get_tts_system(
-    config["tts_config"]["type"],
-    app_key=config["tts_config"]["app_key"],
-    token=config["tts_config"]["token"],
-    api_url=config["tts_config"]["api_url"]
+    ConfigLibrarian.get_default_tts(),
+    **ConfigLibrarian.get_tts_provider_info(ConfigLibrarian.get_default_tts())
 )
+
 
 app = FastAPI()
 
@@ -120,18 +110,21 @@ async def speech_response(file: UploadFile = File(...)):
 
 @app.websocket("/ws_control")
 async def websocket_endpoint(websocket: WebSocket):
+    print("websocket connection hit")
     await websocket.accept()
+    print("websocket connection established")
     try:
         while True:
             data = await websocket.receive_text()
+            print(data)
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")
 
 
 def main():
-    host = config["system_config"]["host"]
-    port = config["system_config"]["port"]
+    host = ConfigLibrarian.get_system_host()
+    port = ConfigLibrarian.get_system_port()
     print(f"Starting server on {host}:{port}")
     import uvicorn
     uvicorn.run(app, host=host, port=port)
