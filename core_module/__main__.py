@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 
+from core_module.agent.agent_prompts.chatter_logic import CHATTER_LOGIC
 from core_module.util.config_librarian import ConfigLibrarian
 
 from .asr.asr_factory import ASRFactory
@@ -93,7 +94,7 @@ async def speech_response(file: UploadFile = File(...)):
         return JSONResponse(status_code=500, content={"error": "ASR transcription failed"})
 
     # Step 2: LLM - process transcribed text
-    llm_response = llm.get_response(asr_result)
+    llm_response = llm.get_response(asr_result, CHATTER_LOGIC)
     if not llm_response:
         return JSONResponse(status_code=500, content={"error": "LLM processing failed"})
 

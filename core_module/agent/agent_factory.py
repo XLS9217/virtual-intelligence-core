@@ -1,7 +1,11 @@
+from core_module.agent.agent_prompts.chatter_logic import CHATTER_LOGIC
 from core_module.agent.agent_types.agent_chatter import AgentChatter
+from core_module.agent.agent_types.agent_mcp_handler import AgentMCPHandler
+from core_module.agent.prompt_forger import PromptForger
 from core_module.llm.llm_factory import LLMFactory
 from core_module.llm.llm_interface import LLMInterface
 from core_module.util.config_librarian import ConfigLibrarian
+
 
 _default_llm_adapter: LLMInterface = LLMFactory.get_llm_system(
     ConfigLibrarian.get_default_llm(),
@@ -23,12 +27,12 @@ class AgentFactory:
             return AgentChatter(
                 name=agent_name,
                 llm=llm_adapter,
-                setting_prompt="你是个聊天机器人，用15个字做回复"
+                setting_prompt = CHATTER_LOGIC
             )
         
         elif agent_name == "mcp_handler":
-            return AgentChatter(
+            return AgentMCPHandler(
                 name=agent_name,
                 llm=llm_adapter,
-                setting_prompt="你是个聊天机器人，用15个字做回复"
+                setting_prompt= "Be helpful"
             )

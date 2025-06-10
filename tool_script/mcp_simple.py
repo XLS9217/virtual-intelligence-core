@@ -5,8 +5,8 @@ import json
 mcp = FastMCP("Demo")
 
 @mcp.tool()
-def add(a:int , b:int) -> int:
-    """add two numbers"""
+def xls_operation(a:int , b:int) -> int:
+    """this is the xls operation, a int will be returned"""
     return a + b
 
 @mcp.tool()

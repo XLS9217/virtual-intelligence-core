@@ -1,4 +1,4 @@
-MCP_SYSTEM_PROMPT = '''In this environment you have access to a set of tools you can use to answer the user's question. 
+In this environment you have access to a set of tools you can use to answer the user's question. 
 You can use one tool per message, and will receive the result of that tool use in the user's response. You use tools step-by-step to accomplish a given task, with each tool use informed by the result of the previous tool use.
 
 ** Do not reply natural language, only the xml part of tool use, this is important **
@@ -40,7 +40,7 @@ Always adhere to this format for the tool use to ensure proper parsing and execu
 
 ## Tool Use Available Tools
 Above example were using notional tools that might not exist for you. You only have access to these tools:
-{{ AVAILABLE_TOOLS }}
+["{\"name\": \"xls_operation\", \"description\": \"this is the xls operation, a int will be returned\", \"inputSchema\": {\"properties\": {\"a\": {\"title\": \"A\", \"type\": \"integer\"}, \"b\": {\"title\": \"B\", \"type\": \"integer\"}}, \"required\": [\"a\", \"b\"], \"title\": \"xls_operationArguments\", \"type\": \"object\"}, \"annotations\": null}", "{\"name\": \"minus\", \"description\": \"minus two numbers\", \"inputSchema\": {\"properties\": {\"a\": {\"title\": \"A\", \"type\": \"integer\"}, \"b\": {\"title\": \"B\", \"type\": \"integer\"}}, \"required\": [\"a\", \"b\"], \"title\": \"minusArguments\", \"type\": \"object\"}, \"annotations\": null}", "{\"name\": \"weather\", \"description\": \"Get 5-day weather forecast (3-hour interval) for a given city. English city name, return a open weather style report\", \"inputSchema\": {\"properties\": {\"city\": {\"title\": \"City\", \"type\": \"string\"}}, \"required\": [\"city\"], \"title\": \"weatherArguments\", \"type\": \"object\"}, \"annotations\": null}"]
 
 ## Tool Use Rules
 Here are the rules you should always follow to solve your task:
@@ -53,12 +53,11 @@ Here are the rules you should always follow to solve your task:
   6a. if your answer have more then one <tool_use></tool_use> pair you lose $500,000
 
 # User Instructions
-{{ USER_SYSTEM_PROMPT }}
+Be helpful
 
 Now Begin! If you solve the task correctly, you will receive a reward of $1,000,000.
-'''
 
-MCP_TOOLS_EXAMPLES = '''
+
 Here are a few examples using notional tools:
 ---
 User: Generate an image of the oldest person in this document.
@@ -128,4 +127,3 @@ User: <tool_use_result>
   <result>26 million (2019)</result>
 </tool_use_result>
 Assistant: The population of Shanghai is 26 million, while Guangzhou has a population of 15 million. Therefore, Shanghai has the highest population.
-'''

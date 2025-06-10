@@ -18,10 +18,10 @@ class MCPManager:
     _sessions: Dict[str, _MCPSession] = {}
 
     @classmethod
-    async def get_sse_session(cls, base_url: str) -> _MCPSession:
+    async def get_sse_session(cls, base_url: str) -> ClientSession:
         # Return existing session if exists
         if base_url in cls._sessions:
-            return cls._sessions[base_url]
+            return cls._sessions[base_url].session
 
         # Otherwise, create a new session
         exit_stack = AsyncExitStack()
@@ -43,7 +43,8 @@ class MCPManager:
         session_id = str(uuid.uuid4())
         mcp_session = _MCPSession(session, exit_stack, session_id)
         cls._sessions[base_url] = mcp_session
-        return mcp_session
+
+        return session
 
     @classmethod
     async def close_session(cls, base_url: str):

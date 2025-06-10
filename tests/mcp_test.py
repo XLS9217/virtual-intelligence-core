@@ -7,8 +7,8 @@ from core_module.mcp.mcp_manager import MCPManager
 
 async def main():
     mcp_session = await MCPManager.get_sse_session("http://127.0.0.1:8000/sse")
-    response = await mcp_session.session.list_tools()
-    print(response)
+    response = await mcp_session.list_tools()
+    print(response.tools)
 
     await MCPManager.close_session("http://127.0.0.1:8000/sse")
 
