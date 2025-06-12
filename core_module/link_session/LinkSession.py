@@ -1,87 +1,64 @@
-import asyncio
 import uuid
-import time
+import json
+from fastapi.websockets import WebSocket
 
-class _Controller:
+
+class _LinkSessionClient:
     """
-    Handles control WebSocket, receives messages,
-    enqueues them to the session with timestamp priority.
+    Simplified WebSocket client for LinkSession.
+    Handles processing of messages.
     """
-    def __init__(self, websocket, session, ip):
+    def __init__(self, websocket: WebSocket, session, role: str):
         self.websocket = websocket
         self.session = session
-        self.ip = ip
+        self.role = role
 
-    async def recv_loop(self):
-        async for message in self.websocket:
-            timestamp = time.time()
-            print(f"[{timestamp}] - {self.ip}(controller) - {message}")
-            await self.session._pq.put((timestamp, message))
-            
-    async def send(self, message):
-        await self.websocket.send(message)
+    async def send(self, data: dict):
+        await self.websocket.send_text(json.dumps(data))
 
-
-class _Displayer:
-    """
-    Handles display WebSocket, receives display data,
-    and provides send() for outgoing messages.
-    """
-    def __init__(self, websocket, ip):
-        self.websocket = websocket
-        self.ip = ip
-
-    async def recv_loop(self):
-        async for message in self.websocket:
-            print(f"[{time.time()}] - {self.ip}(displayer) - {message}")
-            pass  # optional: handle display input
-
-    async def send(self, message):
-        await self.websocket.send(message)
+    async def process_message(self, data: dict):
+        """
+        Processes a single message.
+        If type is 'control' -> broadcast to displayers.
+        """
+        msg_type = data.get("type")
+        if msg_type == "control":
+            print(f"Broadcasting control message from {self.websocket.client}")
+            await self.session.broadcast(data)
+        else:
+            print(f"Unknown message type from {self.websocket.client}: {data}")
 
 
 class LinkSession:
     """
-    Manages a session with one controller and multiple displayers.
-    Commands are stored in a priority queue sorted by timestamp.
+    Manages WebSocket clients in a session.
     """
     def __init__(self):
         self.session_id = str(uuid.uuid4())
-        self.controller = None
-        self.displayers = []
-        self._pq = asyncio.PriorityQueue()
+        self.clients: list[_LinkSessionClient] = []
 
-    """
-    Registers a controller with its websocket and ip.
-    Starts its recv_loop.
-    """
-    async def register_controller(self, websocket, ip):
-        self.controller = _Controller(websocket, self, ip)
-        asyncio.create_task(self.controller.recv_loop())
+    def register_client(self, websocket: WebSocket, role: str) -> _LinkSessionClient:
+        """
+        Registers a WebSocket client and returns it.
+        """
+        client = _LinkSessionClient(websocket, self, role)
+        self.clients.append(client)
+        print(f"Registered {websocket.client} as {role}")
+        return client
+    
+    def unregister_client(self, client: _LinkSessionClient):
+        """
+        Unregisters a WebSocket client.
+        """
+        if client in self.clients:
+            self.clients.remove(client)
+            print(f"Unregistered {client.websocket.client} ({client.role})")
 
-    """
-    Registers a displayer with its websocket and ip.
-    Starts its recv_loop.
-    """
-    async def register_displayer(self, websocket, ip):
-        displayer = _Displayer(websocket, ip)
-        self.displayers.append(displayer)
-        asyncio.create_task(displayer.recv_loop())
-
-    """
-    Main loop of the session.
-    Dequeues commands by timestamp priority and broadcasts them.
-    """
-    async def main(self):
-        while True:
-            timestamp, message = await self._pq.get()
-            await self.broadcast(timestamp, message)
-
-    """
-    Broadcasts a message to all registered displayers.
-    Adds timestamped logging.
-    """
-    async def broadcast(self, timestamp, message):
-        for displayer in self.displayers:
-            print(f"[{timestamp}] - {displayer.ip}(displayer) <= {message}")
-            await displayer.send(message)
+    async def broadcast(self, data: dict):
+        """
+        Sends data to all clients with role 'displayer'.
+        """
+        for client in self.clients:
+            if client.role == "displayer":
+                print(f"-> {client.websocket.client} receives broadcast: {data}")
+                await client.send(data)

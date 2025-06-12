@@ -1,3 +1,5 @@
+import asyncio
+import json
 from fastapi import FastAPI, UploadFile, File
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
@@ -5,6 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from core_module.agent.agent_prompts.chatter_logic import CHATTER_LOGIC
+from core_module.link_session.LinkSession import LinkSession
 from core_module.util.config_librarian import ConfigLibrarian
 
 from .asr.asr_factory import ASRFactory
@@ -69,6 +72,8 @@ async def llm_process(data: dict):
         "llm_result": llm_response,
     })
 
+
+# {"text": "Accept message like this"}
 @app.post("/tts_speak")
 async def tts_speak(data: dict):
     text = data.get("text")
@@ -109,18 +114,46 @@ async def speech_response(file: UploadFile = File(...)):
     )
 
 
-@app.websocket("/ws_control")
-async def websocket_endpoint(websocket: WebSocket):
-    print("websocket connection hit")
-    await websocket.accept()
-    print("websocket connection established")
-    try:
-        while True:
-            data = await websocket.receive_text()
-            print(data)
 
-    except WebSocketDisconnect:
-        print("WebSocket disconnected")
+
+l_session = LinkSession()
+@app.websocket("/link_session")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print(f"WebSocket connection established: {websocket.client}")
+
+    try:
+        raw = await websocket.receive_text()
+        print("raw text " + raw)
+        init_data = json.loads(raw)
+        role = init_data.get("role")
+        if role not in {"controller", "displayer"}:
+            await websocket.close()
+            print("Invalid role, connection closed")
+            return
+
+        print(f"Client role received: {role}")
+        client = l_session.register_client(websocket, role)
+
+        # Process subsequent messages
+        while True:
+            try:
+                raw_msg = await websocket.receive_text()
+                print(f"{websocket.client}({role}) -> {raw_msg}")
+
+                data = json.loads(raw_msg)
+                await client.process_message(data)
+
+            except Exception as e:
+                print(f"{websocket.client}({role}) connection error: {e}")
+                l_session.unregister_client(client)
+                break
+
+    except Exception as e:
+        print(f"WebSocket setup error: {e}")
+        await websocket.close()
+
+
 
 
 def main():
