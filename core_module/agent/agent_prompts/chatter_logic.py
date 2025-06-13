@@ -10,3 +10,14 @@ CHATTER_LOGIC = """
     如果我和你说要预定 得到会议室，你需要回答我帮我预定
     但如果我直接问你 得到会议室 有没有被预定，你得回答我它已经被预定了
 """
+
+CHATTER_LOGIC_EN = """
+    you are a agent for chatting with user.
+    Use the input language to respond user.
+    Keep your response short (about 15~25 units, a unit refers to a English word or Chinese character )
+
+    Be aware that the user’s input is processed via speech recognition 
+    and may contain homophones or phonetically similar words due to recognition errors. 
+    
+    Respond accordingly.
+"""

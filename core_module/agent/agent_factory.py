@@ -1,4 +1,4 @@
-from core_module.agent.agent_prompts.chatter_logic import CHATTER_LOGIC
+from core_module.agent.agent_prompts.chatter_logic import CHATTER_LOGIC, CHATTER_LOGIC_EN
 from core_module.agent.agent_types.agent_chatter import AgentChatter
 from core_module.agent.agent_types.agent_mcp_handler import AgentMCPHandler
 from core_module.agent.prompt_forger import PromptForger
@@ -27,7 +27,7 @@ class AgentFactory:
             return AgentChatter(
                 name=agent_name,
                 llm=llm_adapter,
-                setting_prompt = CHATTER_LOGIC
+                setting_prompt = CHATTER_LOGIC_EN
             )
         
         elif agent_name == "mcp_handler":

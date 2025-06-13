@@ -116,6 +116,12 @@ async def speech_response(file: UploadFile = File(...)):
 
 
 
+
+
+
+
+
+
 l_session = LinkSession()
 @app.websocket("/link_session")
 async def websocket_endpoint(websocket: WebSocket):
@@ -152,6 +158,9 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         print(f"WebSocket setup error: {e}")
         await websocket.close()
+
+
+
 
 
 

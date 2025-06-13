@@ -3,10 +3,48 @@ import websockets
 import json
 
 MESSAGES = [
-    {"type": "control", "payload": {"action": "speak", "content": "你好，我叫金宝"}},
-    {"type": "control", "payload": {"action": "speak", "content": "爱人，想想我们曾经见过的东西，在凉夏的美丽的早晨：在小路拐弯处，一具丑恶的腐尸在铺石子的床上横陈，"}},
-    {"type": "control", "payload": {"action": "speak", "content": "For Unreal lambdas working with class members, [this] is recommended for clarity."}},
+    {
+        "type": "control",
+        "payload": {
+            "action": "speak",
+            "content": "Hello there, welcome to the facility.",
+            "body_language": "TalkN"
+        }
+    },
+    {
+        "type": "control",
+        "payload": {
+            "action": "speak",
+            "content": "Listen closely. I won’t say this twice.",
+            "body_language": "TalkA"
+        }
+    },
+    {
+        "type": "control",
+        "payload": {
+            "action": "speak",
+            "content": "Did you know the ancient texts described this very moment?",
+            "body_language": "TalkN"
+        }
+    },
+    {
+        "type": "control",
+        "payload": {
+            "action": "speak",
+            "content": "Get out of here! Now!",
+            "body_language": "TalkA"
+        }
+    },
+    {
+        "type": "control",
+        "payload": {
+            "action": "speak",
+            "content": "For Unreal lambdas working with class members, using [this] is recommended for clarity.",
+            "body_language": "TalkN"
+        }
+    }
 ]
+
 
 async def get_input(prompt):
     return await asyncio.to_thread(input, prompt)
