@@ -3,6 +3,7 @@ Response for doing
 """
 
 import json
+import re
 from core_module.agent.agent_interface import AgentInterface
 from core_module.agent.prompt_forger import PromptForger
 from core_module.llm.llm_interface import LLMInterface
@@ -24,10 +25,37 @@ class AgentMCPHandler(AgentInterface):
         session = await MCPManager.get_sse_session(mcp_server_url)
         response = await session.list_tools()
         tools_list = [json.dumps(tool.__dict__) for tool in response.tools]
-        tools_str = "\n".join(tools_list)   
-        # session.call_tool()
-        await MCPManager.close_session("http://127.0.0.1:8000/sse")
-        return self.llm.get_response(
-            user_input= query,
-            system_prompt= PromptForger.forge_mcp_prompt(json.dumps(tools_list) , self.setting_prompt),
-        )
+        
+        
+        message_list = []
+        message_list.append({
+            "role": "system",
+            "content": PromptForger.forge_mcp_prompt(json.dumps(tools_list), self.setting_prompt)
+        })
+        message_list.append({
+            "role": "user",
+            "content": query
+        })
+
+        llm_response = self.llm.memory_response(message_list)
+        tool_name, tool_args = PromptForger.extract_tool_use(llm_response)
+        print("-----------------------\n" + llm_response)
+
+        tool_result = await session.call_tool(tool_name, tool_args)
+        result_string = PromptForger.forge_tool_use_result(tool_name, tool_result.content[0].text)
+        print("-----------------------\n" + result_string)
+        message_list.append({
+            "role": "user",
+            "content": result_string
+        })
+
+        llm_response = self.llm.memory_response(message_list)
+        print("-----------------------\n" + result_string)
+
+        print(message_list)
+
+        await MCPManager.close_session(mcp_server_url)
+        return tool_result
+
+
+

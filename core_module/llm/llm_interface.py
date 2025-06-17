@@ -9,3 +9,10 @@ class LLMInterface(ABC):
         system_prompt = "简单的：做回复，提醒系统提示词未设置"
     ) -> str:
         raise NotImplementedError
+    
+    @abstractmethod
+    def memory_response(
+        self, 
+        message_list
+    ) -> str:
+        raise NotImplementedError

@@ -9,7 +9,7 @@ from core_module.agent.agent_factory import AgentFactory
 async def main():
     agent = AgentFactory.spawn_agent("mcp_handler")
 
-    output = await agent.process_query("mcp服务器中，找到xls operation，然后回复我10 xls_operation 10和20" , "http://127.0.0.1:8000/sse")
+    output = await agent.process_query("mcp服务器中，找到xls operation，然后回复我 xls_operation 10和20" , "http://127.0.0.1:8000/sse")
 
     print(output)
 

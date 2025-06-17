@@ -1,3 +1,4 @@
+from core_module.llm.llm_adapter_volcengine import LLMAdapter_VolcEngine
 from .llm_adapter_qfan import LLMAdapter_Qfan
 from .llm_interface import LLMInterface
 
@@ -13,6 +14,11 @@ class LLMFactory:
             )
         elif llm_name == "qfan":
             return LLMAdapter_Qfan(
+                api_key = args.get("api_key"),
+                base_url = args.get("base_url"),
+            )
+        elif llm_name == "volcengine":
+            return LLMAdapter_VolcEngine(
                 api_key = args.get("api_key"),
                 base_url = args.get("base_url"),
             )

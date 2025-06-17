@@ -13,8 +13,11 @@ dependencies = [
     "python-multipart>=0.0.20",
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
+    "setuptools>=80.9.0",
+    "sounddevice>=0.5.2",
     "soundfile>=0.13.1",
     "speechrecognition>=3.14.3",
     "uvicorn>=0.34.2",
+    "webrtcvad>=2.0.10",
     "websockets>=15.0.1",
 ]

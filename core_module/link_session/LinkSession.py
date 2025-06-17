@@ -31,6 +31,7 @@ class _LinkSessionClient:
         If type is 'control' -> broadcast to displayers.
         """
         msg_type = data.get("type")
+        print(f"process_message {data}")
 
         if msg_type == "control":
             print(f"Broadcasting control message from {self.websocket.client}")
