@@ -8,6 +8,5 @@ class TTSFactory:
         if tts_name == "nls":
             return TTSAdapter_NLS(
                 app_key= args.get("app_key"),
-                token= args.get("token"),
                 api_url=args.get("api_url"),
             )

@@ -1,28 +1,43 @@
 @echo off
+:: ==============================================
+:: Virtual Intelligence Environment Runner
+:: Works in CMD and can be run from PowerShell
+:: ==============================================
 
-:: Check if conda is available
-where conda >nul 2>nul
-if %errorlevel%==0 (
-    echo Conda found.
+echo ========================================
+echo     Virtual Intelligence Launcher
+echo ========================================
+echo.
 
-    :: Check if a conda environment is active
-    if defined CONDA_DEFAULT_ENV (
-        echo Deactivating conda environment: %CONDA_DEFAULT_ENV%
-        call conda deactivate
-    )
+echo Select what to run:
+echo 1. core_module - Virtual Intelligence Server
+echo 2. tool_script - Helper Tools
+echo 3. tests - Unit Tests
+echo.
+
+set /p choice=Enter 1, 2 or 3: 
+
+if "%choice%"=="1" (
+    echo.
+    echo [INFO] Running Virtual Intelligence Server...
+    python core_module/main.py
+    goto :eof
 )
 
-:: Check if a virtual environment is already active
-if defined VIRTUAL_ENV (
-    echo Virtual environment already active: %VIRTUAL_ENV%
-) else (
-    :: Activate .venv only if it exists
-    if exist ".venv\Scripts\activate.bat" (
-        echo Activating .venv...
-        call .venv\Scripts\activate.bat
-    ) else (
-        echo .venv\Scripts\activate.bat not found.
-    )
+if "%choice%"=="2" (
+    echo.
+    echo [INFO] Listing helper tools:
+    for %%f in (tool_script\*.py) do echo   - %%~nf
+    goto :eof
 )
 
-call python -m core_module
+if "%choice%"=="3" (
+    echo.
+    echo [INFO] Listing tests:
+    for %%f in (tests\*.py) do echo   - %%~nf
+    goto :eof
+)
+
+echo.
+echo [ERROR] Invalid choice. Please enter 1, 2, or 3.
+pause

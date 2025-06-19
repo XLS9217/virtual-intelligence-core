@@ -1,3 +1,4 @@
+from core_module.util.service_helper.aliyun_token_manager import get_aliyun_token
 from .asr_interface import ASRInterface
 import requests
 import ffmpeg
@@ -8,15 +9,15 @@ def _convert_audio_to_wav_io(input_stream: io.BytesIO, target_sample_rate=16000)
         ffmpeg
         .input('pipe:0')
         .output('pipe:', format='wav', ac=1, ar=target_sample_rate, sample_fmt='s16')
-        .run(input=input_stream.read(), capture_stdout=True, capture_stderr=True)
+        .run(input=input_stream.read(), capture_stdout=True, capture_stderr=True, quiet=True)
     )
     return io.BytesIO(out)
 
 class ASRAdapter_NLS(ASRInterface):
 
-    def __init__(self, app_key, token, api_url):
+    def __init__(self, app_key, api_url):
         self.app_key = app_key
-        self.token = token
+        self.token = get_aliyun_token()
         self.api_url = api_url
 
     def transcribe_bytes(self, audio_bytes: bytes) -> str:

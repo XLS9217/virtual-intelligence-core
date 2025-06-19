@@ -6,6 +6,21 @@ MESSAGES = [
     {
         "type": "control",
         "payload": {
+            "action": "thinking",
+            "content": False
+        }
+    },
+        {
+        "type": "control",
+        "payload": {
+            "action": "thinking",
+            "content": True
+        }
+    },
+
+    {
+        "type": "control",
+        "payload": {
             "action": "speak",
             "content": "Hello there, welcome to the facility.",
             "body_language": "TalkN"

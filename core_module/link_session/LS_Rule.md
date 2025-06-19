@@ -35,6 +35,7 @@ e.g.
 
 
 control types
+
 * speak: send to tts to generate speech
   <pre>
   {
@@ -46,6 +47,18 @@ control types
     }
   }
   </pre>
+
+* thinking
+  <pre>
+  {
+    "type": "control",
+    "payload": {
+      "action": "thinking",
+      "content": true | false
+    }
+  }
+  </pre>
+
 * play: A series of what will happen in the display side
   <pre>
   {

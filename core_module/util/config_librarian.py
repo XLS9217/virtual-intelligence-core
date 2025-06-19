@@ -3,20 +3,25 @@ import yaml
 
 class ConfigLibrarian:
     _config = {}
+    CACHE_DIR = "cache"
 
     @classmethod
     def load_config(cls, path="personal_conf.yaml"):
         if cls._config:
             return  # Already loaded, skip reloading
 
-        print(os.getcwd())
+        print("[ConfigLibrarian] running at " + os.getcwd())
         if not os.path.exists(path):
             print(f"[ConfigLibrarian] Config file not found at '{path}'.")
-            print("Please create a personal_conf.yaml config file at the expected location.")
+            print(f"Please create a personal_conf.yaml config file at {os.getcwd()}")
             return
 
         with open(path, "r") as f:
             cls._config = yaml.safe_load(f)
+
+    @classmethod
+    def get_service_config(cls , service_name:str):
+        return cls._config["service_config"][service_name]
 
     @classmethod
     def get_system_host(cls):

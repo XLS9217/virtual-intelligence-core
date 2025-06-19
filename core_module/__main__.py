@@ -15,7 +15,6 @@ from .tts.tts_factory import TTSFactory
 from .llm.llm_factory import LLMFactory
 
 
-# ConfigLibrarian.load_config()
 
 # ASR
 asr = ASRFactory.get_asr_system(

@@ -8,6 +8,5 @@ class ASRFactory:
         if system_name == "nls":
             return ASRAdapter_NLS(
                 app_key= args.get("app_key"),
-                token= args.get("token"),
                 api_url=args.get("api_url"),
             )

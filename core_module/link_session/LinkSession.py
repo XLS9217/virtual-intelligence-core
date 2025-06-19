@@ -6,7 +6,7 @@ from core_module.agent.agent_factory import AgentFactory
 
 
 # TO-DO: this chatter agent is just for tempory use change it 
-agent = AgentFactory.spawn_agent("chatter")
+chatter_agent = AgentFactory.spawn_agent("chatter")
 
 
 
@@ -31,7 +31,7 @@ class _LinkSessionClient:
         If type is 'control' -> broadcast to displayers.
         """
         msg_type = data.get("type")
-        print(f"process_message {data}")
+        # print(f"process_message {data}")
 
         if msg_type == "control":
             print(f"Broadcasting control message from {self.websocket.client}")
@@ -39,17 +39,39 @@ class _LinkSessionClient:
 
         elif msg_type == "user_chat":
             print(f"user_chat message from {self.websocket.client}")
+
+            #think before process
+            reply_msg = {
+                "type": "control",
+                "payload": {
+                    "action": "thinking",
+                    "content": True
+                }
+            }
+            await self.session.broadcast(reply_msg)
+
             query = data.get("payload")
-            response = agent.process_query(query)
+            response = chatter_agent.process_query(query)
 
             reply_msg = {
                 "type": "control",
                 "payload": {
                     "action": "speak",
-                    "content": response
+                    "content": response,
+                    "body_language": "TalkN"
                 }
             }
             print(f"user_chat message reply {reply_msg}")
+            await self.session.broadcast(reply_msg)
+
+            #stop think after process
+            reply_msg = {
+                "type": "control",
+                "payload": {
+                    "action": "thinking",
+                    "content": False
+                }
+            }
             await self.session.broadcast(reply_msg)
 
         elif msg_type == "display_info":

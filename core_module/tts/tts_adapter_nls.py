@@ -1,4 +1,6 @@
 import ffmpeg
+
+from core_module.util.service_helper.aliyun_token_manager import get_aliyun_token
 from .tts_interface import TTSInterface
 
 import requests
@@ -10,9 +12,9 @@ import json
 
 class TTSAdapter_NLS(TTSInterface):
 
-    def  __init__(self , app_key, token, api_url):
+    def  __init__(self , app_key, api_url):
         self.app_key = app_key
-        self.token = token
+        self.token = get_aliyun_token()
         self.api_url = api_url
         pass
 
@@ -55,9 +57,9 @@ class TTSAdapter_NLS(TTSInterface):
                             ar=16000, 
                             sample_fmt='s16'
                         )
-                    .run(input=raw_wav, overwrite_output=True)
+                    .run(input=raw_wav, overwrite_output=True, quiet=True)
                 )
-
+                
                 print("Speech synthesis succeeded! Audio file saved as output_audio.wav")
                 return converted_path
             else:  # Returned JSON error message
