@@ -88,31 +88,57 @@ class AccessToken:
         return None, None
     
 
+_cached_token = {}
+_loaded = False
+
 def get_aliyun_token():
+    global _cached_token, _loaded
+
     cache_dir = ConfigLibrarian.CACHE_DIR
     cache_file = os.path.join(cache_dir, "aliyun_token.json")
 
-    if os.path.exists(cache_file):
-        with open(cache_file, "r") as f:
-            cache = json.load(f)
-            token = cache.get("token")
-            expire_time = cache.get("expire_time", 0)
+    print("[AliyunTokenManager] Trying to load aliyun token...")
 
-            if time.time() < expire_time:
-                print("Using cached token")
-                return token
+    # First time loading from file if not already loaded
+    if not _loaded:
+        if os.path.exists(cache_file):
+            print(f"[AliyunTokenManager] Found cache file: {cache_file}")
+            with open(cache_file, "r") as f:
+                _cached_token = json.load(f)
+            print(f"[AliyunTokenManager] Loaded cached token from file.")
+        else:
+            print(f"[AliyunTokenManager] No cache file found at {cache_file}.")
+        _loaded = True
 
+    token = _cached_token.get("token")
+    expire_time = _cached_token.get("expire_time", 0)
+
+    # If cached token exists and is not expired, use it
+    if token and time.time() < expire_time:
+        print("[AliyunTokenManager] Using cached token (runtime memory, valid).")
+        return token
+    else:
+        if token:
+            print("[AliyunTokenManager] Cached token expired or invalid, generating new token.")
+        else:
+            print("[AliyunTokenManager] No valid token found, generating new token.")
+
+    # Generate new token
     service_config = ConfigLibrarian.get_service_config("aliyun")
     access_key_id = service_config["access_id"]
     access_key_secret = service_config["access_secret"]
     token, expire_time = AccessToken.create_token(access_key_id, access_key_secret)
 
-    print(f'Token: {token}, Expire time(s): {expire_time}')
+    print(f"[AliyunTokenManager] New token: {token}, expires at (epoch): {expire_time}")
     if expire_time:
-        print('Token valid until (Beijing Time): %s' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(expire_time)))
+        print('[AliyunTokenManager] Token valid until (Beijing Time): %s' %
+              time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(expire_time)))
 
+    # Save to memory and file
+    _cached_token = {"token": token, "expire_time": expire_time}
     os.makedirs(cache_dir, exist_ok=True)
     with open(cache_file, "w") as f:
-        json.dump({"token": token, "expire_time": expire_time}, f)
+        json.dump(_cached_token, f)
+    print(f"[AliyunTokenManager] Token cached to file: {cache_file}")
 
     return token
