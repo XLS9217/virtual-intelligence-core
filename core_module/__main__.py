@@ -7,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from core_module.agent.agent_prompts.chatter_logic import CHATTER_LOGIC
-from core_module.link_session.LinkSession import LinkSession
+from core_module.link_session.link_session_manager import LinkSessionManager
 from core_module.util.config_librarian import ConfigLibrarian
 
 from .asr.asr_factory import ASRFactory
@@ -121,7 +121,6 @@ async def speech_response(file: UploadFile = File(...)):
 
 
 
-l_session = LinkSession()
 @app.websocket("/link_session")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -138,7 +137,10 @@ async def websocket_endpoint(websocket: WebSocket):
             return
 
         print(f"Client role received: {role}")
-        client = l_session.register_client(websocket, role)
+
+        # Use LinkSessionManager, default session is "0"
+        session = LinkSessionManager.get_session("0")
+        client = session.register_client(websocket, role)
 
         # Process subsequent messages
         while True:
@@ -151,14 +153,12 @@ async def websocket_endpoint(websocket: WebSocket):
 
             except Exception as e:
                 print(f"{websocket.client}({role}) connection error: {e}")
-                l_session.unregister_client(client)
+                session.unregister_client(client)
                 break
 
     except Exception as e:
         print(f"WebSocket setup error: {e}")
         await websocket.close()
-
-
 
 
 

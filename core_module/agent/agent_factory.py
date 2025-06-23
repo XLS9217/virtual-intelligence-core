@@ -31,8 +31,11 @@ class AgentFactory:
             )
         
         elif agent_name == "mcp_handler":
+
+            user_instruction = args.get("user_instruction" , "Be helpful")
+
             return AgentMCPHandler(
                 name=agent_name,
                 llm=llm_adapter,
-                setting_prompt= "Be helpful"
+                setting_prompt= user_instruction
             )

@@ -91,10 +91,9 @@ class LinkSession:
     Manages WebSocket clients in a session.
     """
     def __init__(self):
+
         self.session_id = str(uuid.uuid4())
         self.clients: list[_LinkSessionClient] = []
-        
-
 
     def register_client(self, websocket: WebSocket, role: str) -> _LinkSessionClient:
         """

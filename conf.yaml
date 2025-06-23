@@ -1,14 +1,20 @@
 system_config:
   host: "0.0.0.0"
   port: 8192
+  cache_dir: "cache"
+  token_cache_dir: "token"
+  mcp_cache_dir: "mcp"
 
-# only consider using api to call, even locally
+service_config:
+  aliyun:
+    access_id: "<your_access_id>"
+    access_secret: "<your_access_secret>"
+
 asr_config:
   using: "nls"
   providers:
     nls:
       app_key: "<your_app_key>"
-      token: "<your_token>"
       api_url: "https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/asr"
 
 llm_config:
@@ -18,10 +24,13 @@ llm_config:
       api_key: "<your_api_key>"
       base_url: "https://qianfan.baidubce.com/v2"
 
+    volcengine:
+      api_key: "<your_api_key>"
+      base_url: "https://ark.cn-beijing.volces.com/api/v3"
+
 tts_config:
   using: "nls"
   providers:
     nls:
       app_key: "<your_app_key>"
-      token: "<your_token>"
       api_url: "https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/tts"

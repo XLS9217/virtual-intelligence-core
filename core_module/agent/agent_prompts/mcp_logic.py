@@ -35,11 +35,6 @@ For example, if the result of the tool use is an image file, you can use it in t
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
-if you think the answer for the user request is reached,  return
-<terminate>
-  
-</terminate> 
-
 
 ## Tool Use Examples
 {{ TOOL_USE_EXAMPLES }}

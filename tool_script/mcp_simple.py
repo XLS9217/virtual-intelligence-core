@@ -5,14 +5,14 @@ import json
 mcp = FastMCP("Demo")
 
 @mcp.tool()
-def xls_operation(a:int , b:int) -> int:
-    """this is the xls operation, a int will be returned"""
-    return a + b
+def xls_operation(a: int, b: int) -> list[int]:
+    """this is the xls operation, returns a list of ints"""
+    return [a, b, a + b]
 
 @mcp.tool()
-def minus(a:int , b:int) -> int:
-    """minus two numbers"""
-    return a - b
+def slx_operation(a:int , b:int, c:int) -> int:
+    """ad xls operation on all three inputs"""
+    return a + b + c
 
 @mcp.tool()
 def weather(city: str):
@@ -28,5 +28,5 @@ def weather(city: str):
 
 if __name__ == "__main__":
     print(f"mcp running")
-    # mcp.run(transport="streamable-http")
-    mcp.run(transport="sse")
+    mcp.run(transport="streamable-http")
+    # mcp.run(transport="sse")

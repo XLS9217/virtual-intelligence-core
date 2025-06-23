@@ -3,7 +3,15 @@ import yaml
 
 class ConfigLibrarian:
     _config = {}
-    CACHE_DIR = "cache"
+    
+    @classmethod
+    def get_cache_dir(cls, sub_dir: str = "") -> str:
+        base = os.path.join(os.getcwd(), cls._config["system_config"]["cache_dir"])
+        if sub_dir == "token":
+            return os.path.join(base, cls._config["system_config"]["token_cache_dir"])
+        elif sub_dir == "mcp":
+            return os.path.join(base, cls._config["system_config"]["mcp_cache_dir"])
+        return base
 
     @classmethod
     def load_config(cls, path="personal_conf.yaml"):

@@ -94,7 +94,7 @@ _loaded = False
 def get_aliyun_token():
     global _cached_token, _loaded
 
-    cache_dir = ConfigLibrarian.CACHE_DIR
+    cache_dir = ConfigLibrarian.get_cache_dir("token")
     cache_file = os.path.join(cache_dir, "aliyun_token.json")
 
     print("[AliyunTokenManager] Trying to load aliyun token...")
