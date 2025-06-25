@@ -1,7 +1,7 @@
 ## Run Project
 Run core module
 ```
-uv run -m core_module
+uv run -m src.core_module
 ```
 Run tests
 ```

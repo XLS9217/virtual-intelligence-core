@@ -2,7 +2,7 @@ __pycache__/
 **/__pycache__/
 
 personal_conf.yaml
-core_module/mcp/settings/
+settings/
 
 /*.wav
 *.wav
