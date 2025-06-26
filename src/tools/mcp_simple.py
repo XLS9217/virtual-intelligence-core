@@ -43,6 +43,7 @@ meeting_rooms = [
 @mcp.tool()
 def list_meeting_rooms() -> str:
     """Return the list of all meeting rooms with details."""
+    print("gets called in list_meeting_rooms")
     return meeting_rooms
 
 @mcp.tool()

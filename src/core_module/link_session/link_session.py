@@ -29,6 +29,7 @@ chatter_agent = AgentFactory.spawn_agent("mcp_handler", user_instruction="""
     你的职责是，引导用户选择合适的会议室
     - （重要）你需要了解用户人数和设备配置需求
     - （重要）尽量选刚好合适用户需求的会议室
+    - 如果会议室预定情况有更改，你需要再拉一遍会议室列表
     - 若会议室不存在，请不要预定
     - 若用户提出要取消预定，你可以取消
 
@@ -89,7 +90,6 @@ class _LinkSessionClient:
                 }
             }
             await self.session.broadcast(reply_msg)
-
             query = data.get("payload")
             response , self.session.message_list = await self.session.agent.process_query(
                 query = query.get("content", "failed to get content improvise"),
@@ -97,7 +97,7 @@ class _LinkSessionClient:
                 message_list = self.session.message_list,
                 mcp_server_url = self.session.avaliable_mcp_server #TO-DO: Chatter still doesn't have this?
             )
-            print(response  + "----------------------------------" + json.dumps(self.session.message_list , ensure_ascii = False))
+            # print(response  + "----------------------------------" + json.dumps(self.session.message_list , ensure_ascii = False))
 
             #stop think after process
             reply_msg = {

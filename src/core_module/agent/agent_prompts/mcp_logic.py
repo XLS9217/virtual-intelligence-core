@@ -38,24 +38,6 @@ For example, if the result of the tool use is an image file, you can use it in t
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
-
-## Answering Enhancement
-
-when use tool, output a very short setence (under 10 character if in chinese , under 7 words if in english or others) 
-to introduce what you are doing
-put in task_description tag
-always do the gerund phrase, meaning you are doing it
-在中文语境下，用“正在xxxx中”， like“正在查询xxx中” “正在执行xxxx中”
-
-<task_description> Using python interpreter </task_description>
-<tool_use>
-  <name>python_interpreter</name>
-  <arguments>{"code": "5 + 3 + 1294.678"}</arguments>
-</tool_use>
-
-
-
-
 ## Tool Use Examples
 {{ TOOL_USE_EXAMPLES }}
 
@@ -79,13 +61,13 @@ Here are the rules you should always follow to solve your task:
 Now Begin! If you solve the task correctly, you will receive a reward of $1,000,000.
 '''
 
+
 MCP_TOOLS_EXAMPLES = '''
 Here are a few examples using notional tools:
 ---
 User: Generate an image of the oldest person in this document.
 
 Assistant: I can use the document_qa tool to find out who the oldest person is in the document.
-<task_description> Using tool for finding the oldest person </task_description>
 <tool_use>
   <name>document_qa</name>
   <arguments>{"document": "document.pdf", "question": "Who is the oldest person mentioned?"}</arguments>
@@ -97,7 +79,6 @@ User: <tool_use_result>
 </tool_use_result>
 
 Assistant: I can use the image_generator tool to create a portrait of John Doe.
-<task_description> Using image_generator to create a portrait </task_description>
 <tool_use>
   <name>image_generator</name>
   <arguments>{"prompt": "A portrait of John Doe, a 55-year-old man living in Canada."}</arguments>
@@ -114,7 +95,6 @@ Assistant: the image is generated as image.png
 User: "What is the result of the following operation: 5 + 3 + 1294.678?"
 
 Assistant: I can use the python_interpreter tool to calculate the result of the operation.
-<task_description> Using python_interpreter for calculation </task_description>
 <tool_use>
   <name>python_interpreter</name>
   <arguments>{"code": "5 + 3 + 1294.678"}</arguments>
@@ -131,7 +111,6 @@ Assistant: The result of the operation is 1302.678.
 User: "Which city has the highest population , Guangzhou or Shanghai?"
 
 Assistant: I can use the search tool to find the population of Guangzhou.
-<task_description> Searching population of Guangzhou </task_description>
 <tool_use>
   <name>search</name>
   <arguments>{"query": "Population Guangzhou"}</arguments>
@@ -143,7 +122,6 @@ User: <tool_use_result>
 </tool_use_result>
 
 Assistant: I can use the search tool to find the population of Shanghai.
-<task_description> Searching population of Shanghai </task_description>
 <tool_use>
   <name>search</name>
   <arguments>{"query": "Population Shanghai"}</arguments>

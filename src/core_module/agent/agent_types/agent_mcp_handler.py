@@ -56,7 +56,7 @@ class AgentMCPHandler(AgentInterface):
             llm_response = self.llm.memory_response(message_list)
             tool_name, tool_args = PromptForger.extract_tool_use(llm_response)
 
-            # print("-----------------------\n" + llm_response)
+            print("-----------------------\n" + llm_response)
             message_list.append({
                 "role": "assistant",
                 "content": llm_response
@@ -68,15 +68,15 @@ class AgentMCPHandler(AgentInterface):
                 await send_func(llm_response)
                 break
 
-            task_description = PromptForger.extract_task_description(llm_response)
-            if task_description:
-                print(f"task_description: {task_description}")
-                await send_func(task_description)
+            # task_description = PromptForger.extract_task_description(llm_response)
+            # if task_description:
+            #     print(f"task_description: {task_description}")
+                # await send_func(task_description)
 
             tool_result = await session.call_tool(tool_name, tool_args)
             result_string = PromptForger.forge_tool_use_result(tool_name, tool_result.content)
 
-            # print("-----------------------\n" + result_string)
+            print("-----------------------\n" + result_string)
             message_list.append({
                 "role": "user",
                 "content": result_string

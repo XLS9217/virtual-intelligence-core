@@ -28,7 +28,7 @@ USER_INSTRUCTION = """
 """
 
 
-def simple_send_func( input):
+async def simple_send_func( input):
     print(" this is a send func ")
 
 
