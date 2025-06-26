@@ -127,20 +127,25 @@ async def websocket_endpoint(websocket: WebSocket):
     print(f"WebSocket connection established: {websocket.client}")
 
     try:
+
         raw = await websocket.receive_text()
         print("raw text " + raw)
         init_data = json.loads(raw)
+
         role = init_data.get("role")
+        platform = init_data.get("platform", "unknown")
+        session_id = init_data.get("session_id", "0")
+
         if role not in {"controller", "displayer"}:
             await websocket.close()
             print("Invalid role, connection closed")
             return
 
-        print(f"Client role received: {role}")
+        print(f"Client role: {role}, platform: {platform}, session_id: {session_id}")
 
         # Use LinkSessionManager, default session is "0"
-        session = LinkSessionManager.get_session("0")
-        client = session.register_client(websocket, role)
+        session = LinkSessionManager.get_session(session_id)
+        client = session.register_client(websocket, role, platform=platform)
 
         # Process subsequent messages
         while True:
@@ -161,6 +166,24 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.close()
 
 
+
+@app.post("/add_agent")
+async def add_agent(data: dict):
+    session_id = data.get("session_id", "0")
+    agent_name = data["agent_name"]
+    user_instruction = data.get("user_instruction")
+
+    session = LinkSessionManager.get_session(session_id)
+    kwargs = {}
+
+    if user_instruction:
+        kwargs["user_instruction"] = user_instruction
+
+    session.add_agent(agent_name, **kwargs)
+    return {
+        "status": "ok",
+        "message": f"Agent '{agent_name}' added to session '{session_id}'"
+    }
 
 
 

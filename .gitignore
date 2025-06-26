@@ -2,9 +2,9 @@ __pycache__/
 **/__pycache__/
 
 personal_conf.yaml
-settings/
 
 /*.wav
 *.wav
 
 cache/
+src/cases/private_*.py

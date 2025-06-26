@@ -24,6 +24,7 @@ class AgentFactory:
             llm_adapter = _default_llm_adapter
 
         if agent_name == "chatter":
+
             return AgentChatter(
                 name=agent_name,
                 llm=llm_adapter,

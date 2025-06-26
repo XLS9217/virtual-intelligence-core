@@ -25,6 +25,6 @@ class AgentInterface(ABC):
     Process a natural language query
     """
     @abstractmethod
-    def process_query(self, query:str):
+    async def process_query(self, query:str , send_func=None ):
         raise NotImplementedError
     

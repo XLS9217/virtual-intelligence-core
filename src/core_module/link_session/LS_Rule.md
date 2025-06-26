@@ -113,6 +113,7 @@ action types
      {
        "role": "controller" | "displayer" **Must have**
        "platform": "unreal" | "live2d" | "web"
+       "session_id": "id string"  if not send will fall into the base session
      }
 
 2. **Data Transfer**

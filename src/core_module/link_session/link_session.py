@@ -6,7 +6,33 @@ from src.core_module.agent.agent_factory import AgentFactory
 
 
 # TO-DO: this chatter agent is just for tempory use change it 
-chatter_agent = AgentFactory.spawn_agent("chatter")
+# TO-DO: multi agent
+# TO-DO: multi message list
+# it now used as a default
+# chatter_agent = AgentFactory.spawn_agent("chatter")
+chatter_agent = AgentFactory.spawn_agent("mcp_handler", user_instruction="""
+                    
+    不要重复我的话
+
+    你是会议预定助手
+                  
+    **禁止任何主观假设**
+                  
+    **回复在15~20个字左右 **
+    若一段话内容过多，按内容拆分，只说重要信息
+    例如，
+        客户叫你查寻所有会议室，你就回名字，
+        然后问具体要了解哪个
+        以引导用户为主，
+
+
+    你的职责是，引导用户选择合适的会议室
+    - （重要）你需要了解用户人数和设备配置需求
+    - （重要）尽量选刚好合适用户需求的会议室
+    - 若会议室不存在，请不要预定
+    - 若用户提出要取消预定，你可以取消
+
+""")
 
 
 
@@ -43,6 +69,17 @@ class _LinkSessionClient:
         elif msg_type == "user_chat":
             print(f"user_chat message from {self.websocket.client}")
 
+            async def send_func(chunk):
+                reply_msg = {
+                    "type": "control",
+                    "payload": {
+                        "action": "speak",
+                        "content": chunk,
+                        "body_language": "TalkN"
+                    }
+                }
+                await self.session.broadcast(reply_msg)
+
             #think before process
             reply_msg = {
                 "type": "control",
@@ -54,18 +91,13 @@ class _LinkSessionClient:
             await self.session.broadcast(reply_msg)
 
             query = data.get("payload")
-            response = chatter_agent.process_query(query)
-
-            reply_msg = {
-                "type": "control",
-                "payload": {
-                    "action": "speak",
-                    "content": response,
-                    "body_language": "TalkN"
-                }
-            }
-            print(f"user_chat message reply {reply_msg}")
-            await self.session.broadcast(reply_msg)
+            response , self.session.message_list = await self.session.agent.process_query(
+                query = query.get("content", "failed to get content improvise"),
+                send_func = send_func,
+                message_list = self.session.message_list,
+                mcp_server_url = self.session.avaliable_mcp_server #TO-DO: Chatter still doesn't have this?
+            )
+            print(response  + "----------------------------------" + json.dumps(self.session.message_list , ensure_ascii = False))
 
             #stop think after process
             reply_msg = {
@@ -97,8 +129,23 @@ class LinkSession:
 
         self.session_id = str(uuid.uuid4())
         self.clients: list[_LinkSessionClient] = []
+        
+        self.agent = chatter_agent
+        self.avaliable_mcp_server = "http://127.0.0.1:9000/mcp" #TO-DO: Give a set http
+        self.message_list = [] 
 
-    def register_client(self, websocket: WebSocket, role: str) -> _LinkSessionClient:
+
+    def add_agent(self, agent_name: str, **kwargs):
+        """
+        Spawn and assign an agent to this session. Overwrites existing one. 
+        TO-DO: later set the agent policy and agent swarm
+        """
+        print(f"Assigning new agent '{agent_name}' to session {self.session_id}")
+        self.message_list = [] 
+        self.agent = AgentFactory.spawn_agent(agent_name, **kwargs)
+
+
+    def register_client(self, websocket: WebSocket, role: str, platform: str) -> _LinkSessionClient:
         """
         Registers a WebSocket client and returns it.
         """

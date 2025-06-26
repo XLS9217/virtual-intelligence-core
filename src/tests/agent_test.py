@@ -1,7 +1,6 @@
 
 import asyncio
 from src.core_module.agent.agent_factory import AgentFactory
-from src.core_module.mcp.mcp_handler import connect_all_mcp_services
 from src.core_module.mcp.mcp_manager import MCPManager
 
 # agent = AgentFactory.spawn_agent("chatter")

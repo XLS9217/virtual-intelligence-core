@@ -1,0 +1,1 @@
+name with private_ before the file to git ignore

@@ -34,6 +34,15 @@ class PromptForger:
             return False, False
 
         return name, args
+    
+    @classmethod
+    def extract_task_description(cls, text: str):
+        match = re.search(r"<task_description>(.*?)</task_description>", text)
+        try:
+            description = match.group(1)
+        except (IndexError, json.JSONDecodeError):
+            return False
+        return description
 
     
     @classmethod
