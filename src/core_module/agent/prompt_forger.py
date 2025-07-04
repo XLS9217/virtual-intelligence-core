@@ -2,6 +2,7 @@ import json
 import os
 import re
 from src.core_module.agent.agent_prompts.mcp_logic import MCP_SYSTEM_PROMPT, MCP_TOOLS_EXAMPLES
+from src.core_module.agent.agent_prompts.smart_json_logic import SMART_JSON_LOGIC
 from src.core_module.util.cache_manager import CacheManager
 from src.core_module.util.config_librarian import ConfigLibrarian
 
@@ -15,7 +16,17 @@ class PromptForger:
         prompt = re.sub(r"\{\{\s*USER_SYSTEM_PROMPT\s*\}\}", user_instruction, prompt)
         prompt = re.sub(r"\{\{\s*TOOL_USE_EXAMPLES\s*\}\}", MCP_TOOLS_EXAMPLES, prompt)
 
-        CacheManager.save_cache( "mcp" ,"prompt.md" , prompt)
+        CacheManager.save_cache( "mcp" ,"mcp_prompt.md" , prompt)
+
+        return prompt
+    
+    @classmethod
+    def forge_smart_json_prompt(cls, user_instruction: str) -> str:
+        base_prompt = SMART_JSON_LOGIC
+
+        prompt = re.sub(r"\{\{\s*USER_SYSTEM_PROMPT\s*\}\}", user_instruction, base_prompt)
+
+        CacheManager.save_cache( "mcp" ,"smart_json_prompt.md" , prompt)
 
         return prompt
 

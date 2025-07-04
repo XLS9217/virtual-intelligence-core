@@ -7,4 +7,4 @@ personal_conf.yaml
 *.wav
 
 cache/
-src/cases/private_*.py
+custom_cases/private_*.py

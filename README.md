@@ -1,6 +1,10 @@
 # Run Project
 
+You can run by the guide <code> uv run -m cli </code>
+
 Run core module <code> uv run -m src.core_module </code>
+Run tests and tools <code> uv run -m src.tests/tools.specific_tests/tools </code>
+
 
 
 # Project Structure

@@ -32,8 +32,6 @@ All WebSocket messages must be JSON-encoded with the following structure:
 **control**
 e.g.
 
-
-
 control types
 
 * speak: send to tts to generate speech
@@ -59,7 +57,7 @@ control types
   }
   </pre>
 
-* play: A series of what will happen in the display side
+* play: A series of what will happen in the display side, displayer should define each play chunk
   <pre>
   {
     "type": "control",
@@ -73,6 +71,17 @@ control types
     }
   }
   </pre>
+
+**information**
+  <pre>
+  {
+    "type": "information",
+    "payload": {
+      [] <--- a list
+    }
+  }
+  </pre>
+
 
 **user_chat**
 
@@ -88,7 +97,7 @@ control types
 
 
 **display_info**
-
+From displayer send to Link session
 <pre>
 {
   "type": "display_info",

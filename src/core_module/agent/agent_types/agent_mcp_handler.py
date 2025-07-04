@@ -8,7 +8,6 @@ from src.core_module.agent.prompt_forger import PromptForger
 from src.core_module.llm.llm_interface import LLMInterface
 from src.core_module.mcp.mcp_manager import MCPManager
 from src.core_module.util.cache_manager import CacheManager
-from src.core_module.util.config_librarian import ConfigLibrarian
 
 
 class AgentMCPHandler(AgentInterface):
@@ -29,7 +28,13 @@ class AgentMCPHandler(AgentInterface):
         """
 
         # session = await MCPManager.get_sse_session(mcp_server_url)
-        session = await MCPManager.get_session(mcp_server_url)
+        try:
+            session = await MCPManager.get_session(mcp_server_url)
+        except Exception as e:
+            error_msg = f"Failed to connect to MCP server: {e}"
+            if send_func:
+                await send_func(error_msg)
+            return error_msg, []
         response = await session.list_tools()
         
         final_result = "You shouldn't be seeing this something in mcp handler went wrong"
@@ -67,11 +72,6 @@ class AgentMCPHandler(AgentInterface):
                 final_result = llm_response
                 await send_func(llm_response)
                 break
-
-            # task_description = PromptForger.extract_task_description(llm_response)
-            # if task_description:
-            #     print(f"task_description: {task_description}")
-                # await send_func(task_description)
 
             tool_result = await session.call_tool(tool_name, tool_args)
             result_string = PromptForger.forge_tool_use_result(tool_name, tool_result.content)

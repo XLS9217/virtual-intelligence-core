@@ -9,31 +9,7 @@ from src.core_module.agent.agent_factory import AgentFactory
 # TO-DO: multi agent
 # TO-DO: multi message list
 # it now used as a default
-# chatter_agent = AgentFactory.spawn_agent("chatter")
-chatter_agent = AgentFactory.spawn_agent("mcp_handler", user_instruction="""
-                    
-    不要重复我的话
 
-    你是会议预定助手
-                  
-    **禁止任何主观假设**
-                  
-    **回复在15~20个字左右 **
-    若一段话内容过多，按内容拆分，只说重要信息
-    例如，
-        客户叫你查寻所有会议室，你就回名字，
-        然后问具体要了解哪个
-        以引导用户为主，
-
-
-    你的职责是，引导用户选择合适的会议室
-    - （重要）你需要了解用户人数和设备配置需求
-    - （重要）尽量选刚好合适用户需求的会议室
-    - 如果会议室预定情况有更改，你需要再拉一遍会议室列表
-    - 若会议室不存在，请不要预定
-    - 若用户提出要取消预定，你可以取消
-
-""")
 
 
 
@@ -42,11 +18,12 @@ class _LinkSessionClient:
     Simplified WebSocket client for LinkSession.
     Handles processing of messages.
     """
-    def __init__(self, websocket: WebSocket, session, role: str):
+    def __init__(self, websocket: WebSocket, session, role: str, platform:str):
 
         self.websocket = websocket
         self.session = session
         self.role = role
+        self.platform = platform
         self.id = str(uuid.uuid4())
 
         #this is a list construct from displayer to provide information of how you can display actions
@@ -63,8 +40,8 @@ class _LinkSessionClient:
         msg_type = data.get("type")
         # print(f"process_message {data}")
 
-        if msg_type == "control":
-            print(f"Broadcasting control message from {self.websocket.client}")
+        if msg_type == "control" or msg_type == "information":
+            print(f"Broadcasting {msg_type} message from {self.websocket.client}")
             await self.session.broadcast(data)
 
         elif msg_type == "user_chat":
@@ -79,6 +56,7 @@ class _LinkSessionClient:
                         "body_language": "TalkN"
                     }
                 }
+                print(reply_msg)
                 await self.session.broadcast(reply_msg)
 
             #think before process
@@ -90,6 +68,7 @@ class _LinkSessionClient:
                 }
             }
             await self.session.broadcast(reply_msg)
+            
             query = data.get("payload")
             response , self.session.message_list = await self.session.agent.process_query(
                 query = query.get("content", "failed to get content improvise"),
@@ -130,6 +109,9 @@ class LinkSession:
         self.session_id = str(uuid.uuid4())
         self.clients: list[_LinkSessionClient] = []
         
+        
+        chatter_agent = AgentFactory.spawn_agent("chatter")
+
         self.agent = chatter_agent
         self.avaliable_mcp_server = "http://127.0.0.1:9000/mcp" #TO-DO: Give a set http
         self.message_list = [] 
@@ -149,7 +131,7 @@ class LinkSession:
         """
         Registers a WebSocket client and returns it.
         """
-        client = _LinkSessionClient(websocket, self, role)
+        client = _LinkSessionClient(websocket, self, role, platform)
         self.clients.append(client)
         print(f"Registered {websocket.client} as {role}")
         return client
@@ -172,3 +154,29 @@ class LinkSession:
             if client.role == "displayer":
                 print(f"-> {client.websocket.client} receives broadcast: {data}")
                 await client.send(data)
+
+
+    def generate_report(self) -> dict:
+        """
+        Generates a session report containing client roles and IPs, and MCP server info.
+        Updates self.metadata.
+        """
+        client_info = []
+        for client in self.clients:
+            ip, _ = client.websocket.client
+            client_info.append({
+                "id": client.id,
+                "role": client.role,
+                "platform": client.platform,
+                "ip": ip
+            })
+
+        report = {
+            "session_id": self.session_id,
+            "clients": client_info,
+            "avaliable_mcp_server": self.avaliable_mcp_server,
+            "agent": self.agent.name
+        }
+
+        self.metadata = report
+        return report

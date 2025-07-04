@@ -57,6 +57,33 @@ MESSAGES = [
             "content": "For Unreal lambdas working with class members, using [this] is recommended for clarity.",
             "body_language": "TalkN"
         }
+    },
+    {
+        "type": "information",
+        "payload": {
+            "68341adf853baf0882320786": "Default",
+            "68341af0853baf0882320788": "Booked",
+            "68341b05853baf0882320790": "Focused",
+            "68341b15853baf0882320792": "Default"
+        }
+    },
+    {
+        "type": "information",
+        "payload": {
+            "68341adf853baf0882320786": "Focused",
+            "68341af0853baf0882320788": "Default",
+            "68341b05853baf0882320790": "Default",
+            "68341b15853baf0882320792": "Default"
+        }
+    },
+    {
+        "type": "information",
+        "payload": {
+            "68341adf853baf0882320786": "Booked",
+            "68341af0853baf0882320788": "Focused",
+            "68341b05853baf0882320790": "Booked",
+            "68341b15853baf0882320792": "Booked"
+        }
     }
 ]
 
