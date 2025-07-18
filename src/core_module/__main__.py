@@ -12,6 +12,17 @@ from src.core_module.util.config_librarian import ConfigLibrarian
 
 from src.core_module.routers.basic_api import router as basic_router
 from src.core_module.routers.link_session_api import router as link_router
+from src.core_module.util.debug_loggers import setup_logger
+
+
+
+
+
+setup_logger()
+
+
+
+
 
 
 

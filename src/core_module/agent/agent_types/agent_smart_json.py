@@ -37,7 +37,7 @@ class AgentSmartJSON(AgentInterface):
             message_list = message_list
         )
        
-        await send_func( response )
+        # await send_func( response )
 
         CacheManager.save_cache( "mcp" ,"smart_json_conversation.json" , message_list)
 

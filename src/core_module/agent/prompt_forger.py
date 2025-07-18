@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 from src.core_module.agent.agent_prompts.mcp_logic import MCP_SYSTEM_PROMPT, MCP_TOOLS_EXAMPLES
@@ -11,7 +12,8 @@ class PromptForger:
     @classmethod
     def forge_mcp_prompt(cls, tools: str, user_instruction: str) -> str:
         base_prompt = MCP_SYSTEM_PROMPT + "\n" + MCP_TOOLS_EXAMPLES
-
+        logging.info("PromptForger--forge_mcp_prompt--user_instruction" + user_instruction)
+        
         prompt = re.sub(r"\{\{\s*AVAILABLE_TOOLS\s*\}\}", tools, base_prompt)
         prompt = re.sub(r"\{\{\s*USER_SYSTEM_PROMPT\s*\}\}", user_instruction, prompt)
         prompt = re.sub(r"\{\{\s*TOOL_USE_EXAMPLES\s*\}\}", MCP_TOOLS_EXAMPLES, prompt)

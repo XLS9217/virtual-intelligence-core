@@ -26,10 +26,12 @@ class AgentFactory:
 
         if agent_name == "chatter":
 
+            user_instruction = args.get("user_instruction" , CHATTER_LOGIC_EN)
+
             return AgentChatter(
                 name=agent_name,
                 llm=llm_adapter,
-                setting_prompt = CHATTER_LOGIC_EN
+                setting_prompt = user_instruction
             )
         
         elif agent_name == "mcp_handler":

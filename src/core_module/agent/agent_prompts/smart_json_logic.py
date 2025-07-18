@@ -9,7 +9,9 @@ SMART_JSON_LOGIC = """
     Here is the user instruction
     {{ USER_SYSTEM_PROMPT }}
 
-    If you find you don't need to create a smart json, just return a empty {}
+    Answer rule:
+        1. If you find you don't need to create a smart json, just return a empty {}
+        2. Always only output a string that can be parse into json, start and end either with [] or {}
 
     
     Here are some examples for you to follow

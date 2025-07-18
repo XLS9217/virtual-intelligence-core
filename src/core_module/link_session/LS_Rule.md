@@ -42,9 +42,23 @@ control types
       "action": "speak",
       "content": "Hello" (a string of what to speak)
       "body_language": "" (from display_info, if any of the display can be use as a body language, should stop when speak end)
-    }
+    }，
+    "from": name of the sender (optional)
   }
   </pre>
+
+* inform: just use this for updating status and error reporting, front end should define their own behaviour 
+  <pre>
+  {
+    "type": "control",
+    "payload": {
+      "action": "inform",
+      "content": "e.g. I'm extracting the mcp logic" 
+    }，
+    "from": name of the sender (optional)
+  }
+  </pre>
+
 
 * thinking
   <pre>
@@ -73,6 +87,8 @@ control types
   </pre>
 
 **information**
+  use a list to return a client defined specific information representation
+
   <pre>
   {
     "type": "information",
@@ -88,6 +104,17 @@ control types
 <pre>
 {
   "type": "user_chat",
+  "payload": {
+    "recognized": true,
+    "content": "Hello"
+  }
+}
+</pre>
+
+I'm current using this to transition to strategy group
+<pre>
+{
+  "type": "execute_strategy",
   "payload": {
     "recognized": true,
     "content": "Hello"

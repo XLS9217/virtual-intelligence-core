@@ -28,3 +28,12 @@ class AgentInterface(ABC):
     async def process_query(self, query:str , send_func=None ):
         raise NotImplementedError
     
+    
+    @property
+    def info(self):
+        return {
+            "name": self.name,
+            "llm_model": self.llm.model or "Unknown",
+            "setting_prompt": self.setting_prompt or "Unknown"
+        }
+    

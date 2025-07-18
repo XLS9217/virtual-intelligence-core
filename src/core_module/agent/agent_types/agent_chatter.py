@@ -46,7 +46,8 @@ class AgentChatter(AgentInterface):
         #     user_input= query,
         #     system_prompt= self.setting_prompt,
         # )
-        await send_func(response)
+        if send_func:
+            await send_func(response)
 
         CacheManager.save_cache( "mcp" ,"chatter_conversation.json" , message_list)
 

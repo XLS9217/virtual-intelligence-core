@@ -5,6 +5,7 @@ class LLMAdapter_Qfan(LLMInterface):
     
     def  __init__(self, api_key, base_url):
         #self.api_key = api_key
+        self.model = "ernie-4.5-turbo-vl-32k"
         self.client = OpenAI(
             api_key = api_key, 
             base_url = base_url,
@@ -14,7 +15,7 @@ class LLMAdapter_Qfan(LLMInterface):
         user_input = str(user_input)
         #print(user_input)
         response = self.client.chat.completions.create(
-            model="ernie-4.5-turbo-vl-32k",
+            model= self.model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
