@@ -21,6 +21,7 @@ class TTSAdapter_NLS(TTSInterface):
     def get_tts_wav(self, user_input):
 
         # Construct request headers
+        self.token = get_aliyun_token()
         headers = {
             "X-NLS-Token": self.token,
             "Content-Type": "application/json"

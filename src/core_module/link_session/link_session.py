@@ -119,11 +119,15 @@ class LinkSession:
         self.session_id = str(uuid.uuid4())
         self.clients: list[_LinkSessionClient] = []
         
-        
+        # Agent 1 : host
         chatter_agent = AgentFactory.spawn_agent("chatter")
         self.host_agent = chatter_agent
         
+        # Agent 2 : group for executing strategy
         self.strategy = StrategyFactory.get_strategy("mcp_json_reporter")
+
+        #Agent 3 : For deciding the action
+        self.display_director = AgentFactory.spawn_agent("display_director")
 
         # self.avaliable_mcp_server = "http://127.0.0.1:9000/mcp" #TO-DO: Give a set http
         self.message_list = [] 
@@ -162,7 +166,7 @@ class LinkSession:
             self.clients.remove(client)
             logger.info(f"Unregistered {client.websocket.client} ({client.role})")
 
-    async def talk_to_host_directly(self, query:str):
+    async def talk_to_host_directly(self, query:str, motion_dict:str):
         """
         A direct link for http interaction
         """
@@ -171,7 +175,19 @@ class LinkSession:
             query = query,
             message_list = self.message_list,
         )
-        return response
+
+        self.display_director.setting_prompt = motion_dict
+
+        motion , _ = await self.display_director.process_query(
+            query = "Character says : " + response,
+            message_list = self.message_list,
+        )
+
+        return {
+            "status": "ok", 
+            "message": f"{response}",
+            "motion": f"{motion}"
+        }
 
     async def broadcast(self, data: dict):
         """
@@ -205,6 +221,7 @@ class LinkSession:
                 "name": self.host_agent.name,
                 "setting" : self.host_agent.setting_prompt,
             },
+            "director": self.display_director.info,
             "strategy": self.strategy.info
         }
 

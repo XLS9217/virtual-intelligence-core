@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from src.core_module.agent.agent_prompts.display_director_logic import DISPLAYER_DIRECTOR_LOGIC
 from src.core_module.agent.agent_prompts.mcp_logic import MCP_SYSTEM_PROMPT, MCP_TOOLS_EXAMPLES
 from src.core_module.agent.agent_prompts.smart_json_logic import SMART_JSON_LOGIC
 from src.core_module.util.cache_manager import CacheManager
@@ -29,6 +30,16 @@ class PromptForger:
         prompt = re.sub(r"\{\{\s*USER_SYSTEM_PROMPT\s*\}\}", user_instruction, base_prompt)
 
         CacheManager.save_cache( "mcp" ,"smart_json_prompt.md" , prompt)
+
+        return prompt
+    
+    @classmethod
+    def forge_display_director_prompt(cls, user_instruction: str) -> str:
+        base_prompt = DISPLAYER_DIRECTOR_LOGIC
+
+        prompt = re.sub(r"\{\{\s*USER_SYSTEM_PROMPT\s*\}\}", user_instruction, base_prompt)
+
+        CacheManager.save_cache( "mcp" ,"display_director_prompt.md" , prompt)
 
         return prompt
 

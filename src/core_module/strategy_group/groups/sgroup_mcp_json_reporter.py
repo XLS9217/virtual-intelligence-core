@@ -12,6 +12,7 @@ class MCPJsonReporter(StrategyInterface):
     """
 
     def __init__(self):
+        self.name = "mcp_json_reporter"
         self.mcp_agent = AgentFactory.spawn_agent("mcp_handler")
         self.json_agent = AgentFactory.spawn_agent("smart_json")
 

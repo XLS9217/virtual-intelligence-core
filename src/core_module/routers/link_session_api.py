@@ -17,14 +17,20 @@ async def edit_host(data: dict):
 
 @router.post("/talk_to_host")
 async def talk_to_host(data: dict):
+
+    print(data)
     session_id = data.get("session_id", "0")
     text: str = data.get("text", "tell user there is no input")
+    motion_dict =  json.dumps(data.get("motion_dict" , {}))
+
+
     session = LinkSessionManager.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    response = await session.talk_to_host_directly(text)
-    return {"status": "ok", "message": f"{response}"}
+    response = await session.talk_to_host_directly(text, motion_dict)
+    # return {"status": "ok", "message": f"{response}"}
+    return response
 
 
 @router.get("/session_report/{session_id}")

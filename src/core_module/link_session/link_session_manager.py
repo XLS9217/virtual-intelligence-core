@@ -44,3 +44,19 @@ class LinkSessionManager:
         Clears all sessions except the default one.
         """
         cls.sessions = {"0": cls.get_session("0")}
+
+    # @classmethod
+    # def sessions_list(cls) -> list:
+    #     """
+    #     Returns a report on all sessions: session_id, number of clients, and strategy name.
+    #     """
+    #     report = []
+    #     for session_id, session in cls.sessions.items():
+    #         client_count = len(session.clients) if hasattr(session, 'clients') else "N/A"
+    #         strategy_name = getattr(getattr(session, 'strategy', None), 'name', "NoStrategy")
+    #         report.append({
+    #             "session_id": session_id,
+    #             "clients": client_count,
+    #             "strategy": strategy_name
+    #         })
+    #     return report
