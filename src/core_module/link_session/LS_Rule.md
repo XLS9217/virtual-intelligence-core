@@ -10,6 +10,7 @@ LinkSession is a lightweight WebSocket-based session manager for two types of cl
 |-------------|----------------------------------------|-----------------------------------------------|
 | controller  | Sends **control** messages             | These are broadcast to all displayer clients. |
 | displayer   | Receives control messages              | Can process payloads to perform specific actions. |
+| monitor     | Receives all messages                  | Listens all control message and display message|
 
 ## Message Format
 
@@ -20,16 +21,13 @@ All WebSocket messages must be JSON-encoded with the following structure:
   "payload": {}
 }
 
-### Supported Types
-
-| type      | Description                            | Target                             |
-|-----------|----------------------------------------|------------------------------------|
-| control   | Sent by controller clients             | Broadcast to all displayers        |
-| user_chat | the input setence from user            | Send to agent for further process  |
 
 ### Payload Description
 
 **control**
+Sent by controller clients 
+Broadcast to all {displayer , monitor}
+
 e.g.
 
 control types
@@ -41,9 +39,18 @@ control types
     "payload": {
       "action": "speak",
       "content": "Hello" (a string of what to speak)
-      "body_language": "" (from display_info, if any of the display can be use as a body language, should stop when speak end)
-    }，
-    "from": name of the sender (optional)
+    }
+  }
+  </pre>
+
+  * motion: perform a motion based on motion dict
+  <pre>
+  {
+    "type": "control",
+    "payload": {
+      "action": "motion",
+      "content": "Idle_1" (a string of what to perform)
+    }
   }
   </pre>
 
@@ -55,7 +62,6 @@ control types
       "action": "inform",
       "content": "e.g. I'm extracting the mcp logic" 
     }，
-    "from": name of the sender (optional)
   }
   </pre>
 
@@ -71,20 +77,6 @@ control types
   }
   </pre>
 
-* play: A series of what will happen in the display side, displayer should define each play chunk
-  <pre>
-  {
-    "type": "control",
-    "payload": {
-      "action": "play",
-      "content":[
-        {
-          "name":"play1"
-        }
-      ]
-    }
-  }
-  </pre>
 
 **information**
   use a list to return a client defined specific information representation
@@ -100,6 +92,7 @@ control types
 
 
 **user_chat**
+user input
 
 <pre>
 {
@@ -123,16 +116,17 @@ I'm current using this to transition to strategy group
 </pre>
 
 
-**display_info**
+**motion_dict**
 From displayer send to Link session
+description of what to do while responding
 <pre>
 {
-  "type": "display_info",
+  "type": "motion_dict",
   "payload": {
     "action" : "add" | "set"
     "content": [
-      "display_name": "",
-      "display_description" : "",
+      "motion_name": "",
+      "motion_description" : "",
     ]
   }
 }

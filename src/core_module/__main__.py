@@ -1,5 +1,6 @@
 import asyncio
 import json
+import traceback
 from fastapi import FastAPI, UploadFile, File
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
@@ -57,37 +58,41 @@ async def websocket_endpoint(websocket: WebSocket):
         print("raw text " + raw)
         init_data = json.loads(raw)
 
-        role = init_data.get("role")
+        # normalize role input
+        raw_role = init_data.get("role")
+        if isinstance(raw_role, list):
+            role_list = raw_role
+        else:
+            role_list = [raw_role]
+
         platform = init_data.get("platform", "unknown")
         session_id = init_data.get("session_id", "0")
 
-        if role not in {"controller", "displayer"}:
-            await websocket.close()
-            print("Invalid role, connection closed")
-            return
-
-        print(f"Client role: {role}, platform: {platform}, session_id: {session_id}")
+        print(f"Client role: {role_list}, platform: {platform}, session_id: {session_id}")
 
         # Use LinkSessionManager, default session is "0"
         session = LinkSessionManager.get_session(session_id)
-        client = session.register_client(websocket, role, platform=platform)
+        client = session.register_client(websocket, platform=platform, role_list=role_list)
+
 
         # Process subsequent messages
         while True:
             try:
                 raw_msg = await websocket.receive_text()
-                print(f"{websocket.client}({role}) -> {raw_msg}")
+                print(f"{websocket.client}({role_list}) -> {raw_msg}")
 
                 data = json.loads(raw_msg)
                 await client.process_message(data)
 
             except Exception as e:
-                print(f"{websocket.client}({role}) connection error: {e}")
+                print(f"{websocket.client}({role_list}) connection error: {e}")
+                traceback.print_exc()
                 session.unregister_client(client)
                 break
 
     except Exception as e:
         print(f"WebSocket setup error: {e}")
+        traceback.print_exc()
         await websocket.close()
 
 

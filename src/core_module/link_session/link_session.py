@@ -20,19 +20,47 @@ class _LinkSessionClient:
     Simplified WebSocket client for LinkSession.
     Handles processing of messages.
     """
-    def __init__(self, websocket: WebSocket, session, role: str, platform:str):
+    def __init__(self, websocket: WebSocket, session, platform:str, role_list: list[str]):
 
         self.websocket = websocket
         self.session = session
-        self.role = role
+
+        self.role_list= role_list
+        self.motion_dict = []
         self.platform = platform
+
         self.id = str(uuid.uuid4())
 
         #this is a list construct from displayer to provide information of how you can display actions
         self.display_list = []
+    
+    def __str__(self):
+        return f"\033[33m PLATFORM({self.platform}) ROLE({self.role_list})\033[0m"
 
     async def send(self, data: dict):
-        await self.websocket.send_text(json.dumps(data))
+
+        # =========post-process==================
+
+        # find what to do
+        # this is local to the client and send recv broadcast
+        if data.get("type") == "control" and self.motion_dict:
+            payload:dict = data.get("payload")
+            if payload.get("action") == "speak":
+                self.session.display_director.setting_prompt = json.dumps(self.motion_dict)
+                motion , _ = await self.session.display_director.process_query(
+                    query = "Character says : " + payload.get("content"),
+                    message_list = [],
+                )
+                motion_control = {
+                    "type": "control",
+                    "payload": {
+                        "action": "motion",
+                        "content": motion
+                    }
+                }
+                await self.websocket.send_text(json.dumps(motion_control, ensure_ascii=False))
+
+        await self.websocket.send_text(json.dumps(data, ensure_ascii=False))
 
     async def process_message(self, data: dict):
         """
@@ -43,22 +71,22 @@ class _LinkSessionClient:
         # logger.info(f"process_message {data}")
 
         if msg_type == "control" or msg_type == "information":
-            logger.info(f"Broadcasting {msg_type} message from {self.websocket.client}")
+            logger.info(f"{self} Broadcasting {msg_type} message from {self.websocket.client}")
             await self.session.broadcast(data)
 
         elif msg_type == "user_chat":
             logger.info(f"user_chat message from {self.websocket.client}")
 
             async def send_func(chunk):
+
                 reply_msg = {
                     "type": "control",
                     "payload": {
                         "action": "speak",
-                        "content": chunk,
-                        "body_language": "TalkN"
+                        "content": chunk
                     }
                 }
-                logger.info(reply_msg)
+                logger.info(f"{self} Reply: {chunk}")
                 await self.session.broadcast(reply_msg)
 
             #think before process
@@ -71,12 +99,15 @@ class _LinkSessionClient:
             }
             await self.session.broadcast(reply_msg)
             
+            # find what to say
             query = data.get("payload")
             response , self.session.message_list = await self.session.host_agent.process_query(
                 query = query.get("content", "failed to get content improvise"),
                 send_func = send_func,
                 message_list = self.session.message_list,
             )
+
+            
 
             #stop think after process
             reply_msg = {
@@ -91,22 +122,29 @@ class _LinkSessionClient:
         elif msg_type == "execute_strategy":
             payload = data.get("payload")
             query = payload.get("content", "failed to get content improvise")
-            logger.info(query)
 
             await self.session.strategy.execute_strategy(
                 query = query,
                 session = self.session
             )
 
-        elif msg_type == "display_info":
-            logger.info(f"display_info message from {self.websocket.client}")
-            display_info_action = data.get("payload").get("action")
-            if(display_info_action == "set"):
-                self.display_list = data.get("payload").get("content")
-                logger.info(self.display_list)
+        elif msg_type == "motion_dict":
+            logger.info(f"motion_dict message from {self.websocket.client}")
+            payload = data.get("payload")
+            action = payload.get("action")
+            content = payload.get("content")    
+            # logger.info(f"action = {action}, type(action) = {type(action)}")
+            # logger.info(f"content = {content}")
+
+            if action == "set": 
+                self.motion_dict = content
+                logger.info(f" {self} motion_dict set to {self.motion_dict}")
+            elif action == "add":
+                self.motion_dict.extend(content)
+                logger.info(f" {self} motion_dict set to {self.motion_dict}")
 
         else:
-            logger.info(f"Unknown message type from {self.websocket.client}: {data}")
+            logger.info(f" {self} Unknown message type from {self.websocket.client}: {data}")
 
 
 class LinkSession:
@@ -148,13 +186,13 @@ class LinkSession:
             self.host_agent.setting_prompt = new_setting_prompt
 
 
-    def register_client(self, websocket: WebSocket, role: str, platform: str) -> _LinkSessionClient:
+    def register_client(self, websocket: WebSocket,  platform: str, role_list:list[str]) -> _LinkSessionClient:
         """
         Registers a WebSocket client and returns it.
         """
-        client = _LinkSessionClient(websocket, self, role, platform)
+        client = _LinkSessionClient(websocket, self, platform, role_list)
         self.clients.append(client)
-        logger.info(f"Registered {websocket.client} as {role}")
+        logger.info(f"Registered {websocket.client} as {role_list}")
         return client
     
 
@@ -164,18 +202,21 @@ class LinkSession:
         """
         if client in self.clients:
             self.clients.remove(client)
-            logger.info(f"Unregistered {client.websocket.client} ({client.role})")
+            logger.info(f"Unregistered {client.websocket.client} ({client.role_list})")
 
     async def talk_to_host_directly(self, query:str, motion_dict:str):
         """
         A direct link for http interaction
         """
+
+        # let host respond with a setence
         logger.info(f"query is {query}")
         response , self.message_list = await self.host_agent.process_query(
             query = query,
             message_list = self.message_list,
         )
 
+        #let the display director replay with a motion name
         self.display_director.setting_prompt = motion_dict
 
         motion , _ = await self.display_director.process_query(
@@ -194,7 +235,7 @@ class LinkSession:
         Sends data to all clients with role 'displayer'.
         """
         for client in self.clients:
-            if client.role == "displayer":
+            if "displayer" in client.role_list:
                 logger.info(f"-> {client.websocket.client} receives broadcast: {data}")
                 await client.send(data)
 
@@ -209,9 +250,10 @@ class LinkSession:
             ip, _ = client.websocket.client
             client_info.append({
                 "id": client.id,
-                "role": client.role,
                 "platform": client.platform,
-                "ip": ip
+                "role_list":client.role_list,
+                "ip": ip,
+                "motion_dict" : client.motion_dict
             })
 
         report = {

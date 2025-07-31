@@ -1,7 +1,9 @@
 import json
+import logging
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from src.core_module.link_session.link_session_manager import LinkSessionManager
 
+logger = logging.getLogger('src')
 router = APIRouter()    
 
 @router.post("/edit_host")
@@ -41,6 +43,11 @@ async def get_link_session_report(session_id: str):
     report = session.generate_report()
     return report
 
+@router.get("/session_list")
+async def get_link_session_list():
+    s_list =  LinkSessionManager.sessions_list()
+    logger.info(s_list)
+    return s_list
 
 
 @router.post("/agent_setting_update/{session_id}")
